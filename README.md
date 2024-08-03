@@ -1,3 +1,3 @@
 # Falling sand
 
-## Falling sand in C++ using SFML
+Falling sand in C++ using SFML
