@@ -11,7 +11,6 @@ class Sandbox {
 
 private:
 	int first[height][width];
-	int second[height][width];
 
 public:
 	static const int pixelSize = 5;
@@ -20,21 +19,38 @@ public:
 		for (int i = 0; i < height; ++i) {
 			for (int j = 0; j < width; ++j) {
 				first[i][j] = 0;
-				second[i][j] = 0;
 			}
 		}
 	}
 
 	void place(int x, int y) {
-		first[y][x] = 1;
+		int newx = (x < 0) ? 0 : x;
+		x = (x > width-1) ? width-1 : x;
+
+		int newy = (y < 0) ? 0 : y;
+		y = (y > height - 1) ? height - 1 : y;
+
+		if (x == newx && y == newy) first[y][x] = 1;
 	}
 
 	void update() {
 		for (int i = height-1; i > -1; --i) {
 			for (int j = 0; j < width; ++j) {
-				if (first[i][j] == 1 && i+1 < height && first[i+1][j] == 0) {
-					first[i + 1][j] = 1;
-					first[i][j] = 0;
+				if (first[i][j] == 1) {
+					if (i + 1 < height && first[i + 1][j] == 0) {
+						first[i + 1][j] = 1;
+						first[i][j] = 0;
+					}
+					else if (i + 1 < height && j > -1 && j < width) {
+						if (j > 0 && first[i + 1][j - 1] == 0) {
+							first[i + 1][j - 1] = 1;
+							first[i][j] = 0;
+						}
+						else if (j < width-1 && first[i + 1][j + 1] == 0) {
+							first[i + 1][j + 1] = 1;
+							first[i][j] = 0;
+						}
+					}
 				}
 			}
 		}
@@ -74,26 +90,28 @@ int main() {
 	while (window.isOpen()) {
 
 		window.clear();
-
-		sf::Event event;
+		Event event;
 
 		while (window.pollEvent(event)) {
 
-			if (event.type == sf::Event::Closed) {
+			if (event.type == Event::Closed) {
 				window.close();
 			}
-			else if (Keyboard::isKeyPressed(Keyboard::R)) {
-				sandbox.reset();
+			else if (event.type == Event::KeyPressed) {
+				if (event.key.code == Keyboard::R) {
+					sandbox.reset();
+				}
 			}
-			else if (Mouse::isButtonPressed(Mouse::Left))
-			{
-				auto pos = Mouse::getPosition(window);
+		}
 
-				int x = floor(pos.x / sandbox.pixelSize);
-				int y = floor(pos.y / sandbox.pixelSize);
+		if (Mouse::isButtonPressed(Mouse::Left))
+		{
+			auto pos = Mouse::getPosition(window);
 
-				sandbox.place(x, y);
-			}
+			int x = pos.x / sandbox.pixelSize;
+			int y = pos.y / sandbox.pixelSize;
+
+			sandbox.place(x, y);
 		}
 
 		sandbox.update();
