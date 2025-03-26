@@ -1,2 +1,3 @@
-# Falling sand in C++ using SFML
+# Sand-fall
 
+Падающий песок на C++/SFML ╰(*°▽°*)╯
